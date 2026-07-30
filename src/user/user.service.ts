@@ -58,7 +58,7 @@ export class UserService {
     return user;
   }
 
-  // GET ALL PEMBELI
+  // GET ALL USER
   async findAll() {
     return this.prisma.user.findMany({
       where: {
@@ -74,7 +74,7 @@ export class UserService {
     });
   }
 
-  // GET ALL ADMIN / PETUGAS
+  // GET ALL ADMIN
   async findAllAdmin() {
     return this.prisma.user.findMany({
       where: {

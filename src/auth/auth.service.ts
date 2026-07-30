@@ -7,12 +7,12 @@ import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
-import { Role } from '@prisma/client'; // ✅ import enum
+import { Role } from '@prisma/client';
 
 interface User {
-  id: number; 
+  id: number;
   email: string;
-  role?: string;
+  role: Role;
   password?: string;
 }
 
@@ -28,22 +28,32 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  // ✅ REGISTER
   async register(dto: RegisterDto) {
     const email = dto.email.toLowerCase().trim();
 
     const existingUser = await this.userService.findByEmail(email);
+
     if (existingUser) {
       throw new BadRequestException('Email sudah digunakan');
+    }
+
+    // Hanya boleh register sebagai JOB_SEEKER atau RECRUITER
+    if (
+      dto.role !== Role.JOBSEEKER &&
+      dto.role !== Role.RECRUITER
+    ) {
+      throw new BadRequestException(
+        'Role yang dipilih tidak valid.',
+      );
     }
 
     const hashedPassword = await bcrypt.hash(dto.password.trim(), 10);
 
     const user = await this.userService.create({
-      fullname: dto.fullname,
+      fullname: dto.fullname.trim(),
       email,
       password: hashedPassword,
-      role: Role.JOBSEEKER, // ✅ pakai enum
+      role: dto.role,
     });
 
     return {
@@ -56,7 +66,6 @@ export class AuthService {
     };
   }
 
-  // ✅ VALIDATE USER
   async validateUser(email: string, password: string): Promise<User> {
     const user = await this.userService.findByEmail(
       email.toLowerCase().trim(),
@@ -66,26 +75,27 @@ export class AuthService {
       throw new UnauthorizedException('User tidak ditemukan');
     }
 
-    if (!user.password) {
-      throw new UnauthorizedException('Password tidak tersedia');
-    }
-
-    const isMatch = await bcrypt.compare(password.trim(), user.password);
+    const isMatch = await bcrypt.compare(
+      password.trim(),
+      user.password,
+    );
 
     if (!isMatch) {
       throw new UnauthorizedException('Password salah');
     }
 
-    return user as User;
+    return user;
   }
 
-  async login(email: string, password: string): Promise<TokenResponseDto> {
+  async login(
+    email: string,
+    password: string,
+  ): Promise<TokenResponseDto> {
     const user = await this.validateUser(email, password);
+
     return this.generateToken(user);
   }
 
-
-  // ✅ GENERATE TOKEN
   private generateToken(user: User): TokenResponseDto {
     return {
       message: 'Berhasil login',

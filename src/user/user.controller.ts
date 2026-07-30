@@ -23,14 +23,15 @@ export class UserController {
 
   // GET ALL USER
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('SUPER_ADMIN', 'PETUGAS')
+  @Roles('SUPERADMIN', 'ADMIN')
   @Get()
   findAll() {
     return this.userService.findAll();
   }
 
+// GET ALL ADMIN
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('SUPER_ADMIN')
+  @Roles('SUPERADMIN')
   @Get('admin/all')
   findAllAdmin() {
     return this.userService.findAllAdmin();
@@ -38,7 +39,7 @@ export class UserController {
 
   // GET USER BY ID
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('SUPER_ADMIN')
+  @Roles('SUPERADMIN')
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.userService.findOne(id);
@@ -46,7 +47,7 @@ export class UserController {
 
   // UPDATE USER
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('SUPER_ADMIN')
+  @Roles('SUPERADMIN')
   @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -57,7 +58,7 @@ export class UserController {
 
   // DELETE USER
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('SUPER_ADMIN')
+  @Roles('SUPERADMIN')
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.userService.remove(id);
