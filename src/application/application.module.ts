@@ -1,54 +1,34 @@
-import {
-  Module,
-} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 
-import {
-  ApplicationController,
-} from './application.controller';
+import { ApplicationController } from './application.controller';
+import { ApplicationService } from './application.service';
 
-import {
-  ApplicationService,
-} from './application.service';
+import { PrismaModule } from '../prisma/prisma.module';
 
-import {
-  PrismaModule,
-} from '../prisma/prisma.module';
-
-import {
-  CloudinaryModule,
-} from '../cloudinary/cloudinary.module';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 
 @Module({
 
-  imports: [
-
-    PrismaModule,
-
-    CloudinaryModule,
-
-  ],
+imports:[
+ PrismaModule,
+ CloudinaryModule
+],
 
 
-  controllers: [
-
-    ApplicationController,
-
-  ],
+controllers:[
+ ApplicationController
+],
 
 
-  providers: [
-
-    ApplicationService,
-
-  ],
+providers:[
+ ApplicationService
+],
 
 
-  exports: [
-
-    ApplicationService,
-
-  ],
+exports:[
+ ApplicationService
+]
 
 
 })

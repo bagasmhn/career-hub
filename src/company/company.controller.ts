@@ -51,142 +51,46 @@ export class CompanyController {
   // RECRUITER
   // =====================================================
 
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.RECRUITER)
-  @Post()
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
+ @Post()
+@ApiConsumes('multipart/form-data')
+@ApiBody({
+ schema:{
+  type:'object',
+  properties:{
 
-      properties: {
-        name: {
-          type: 'string',
-          example: 'PT CareerHub Indonesia',
-        },
-
-        description: {
-          type: 'string',
-          example:
-            'Perusahaan teknologi yang bergerak di bidang software development.',
-        },
-
-        email: {
-          type: 'string',
-          example: 'hello@careerhub.id',
-        },
-
-        phone: {
-          type: 'string',
-          example: '081234567890',
-        },
-
-        website: {
-          type: 'string',
-          example: 'https://careerhub.id',
-        },
-
-        industry: {
-          type: 'string',
-          example: 'Technology',
-        },
-
-        address: {
-          type: 'string',
-          example: 'Malang, Jawa Timur',
-        },
-
-        logo: {
-          type: 'string',
-          format: 'binary',
-        },
-
-        banner: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-
-      required: [
-        'name',
-        'description',
-      ],
+    name:{
+      type:'string'
     },
-  })
-  @UseInterceptors(
-    FileFieldsInterceptor(
-      [
-        {
-          name: 'logo',
-          maxCount: 1,
-        },
-        {
-          name: 'banner',
-          maxCount: 1,
-        },
-      ],
-      {
-        // File disimpan sementara di memory
-        // sehingga tersedia sebagai file.buffer
-        storage: memoryStorage(),
 
-        limits: {
-          fileSize: 5 * 1024 * 1024,
-        },
-
-        fileFilter: (
-          req,
-          file,
-          callback,
-        ) => {
-          const allowedMimeTypes = [
-            'image/jpeg',
-            'image/png',
-            'image/webp',
-          ];
-
-          if (
-            !allowedMimeTypes.includes(
-              file.mimetype,
-            )
-          ) {
-            return callback(
-              new BadRequestException(
-                'File harus berupa JPG, PNG, atau WEBP.',
-              ),
-              false,
-            );
-          }
-
-          callback(null, true);
-        },
-      },
-    ),
-  )
-  create(
-    @Req() req,
-    @Body() dto: CreateCompanyDto,
-
-    @UploadedFiles()
-    files: {
-      logo?: Express.Multer.File[];
-      banner?: Express.Multer.File[];
+    description:{
+      type:'string'
     },
-  ) {
-    const logo =
-      files?.logo?.[0];
 
-    const banner =
-      files?.banner?.[0];
+    logo:{
+      type:'string',
+      format:'binary'
+    },
 
-    return this.companyService.create(
-      req.user.id,
-      dto,
-      logo,
-      banner,
-    );
+    banner:{
+      type:'string',
+      format:'binary'
+    }
+
   }
+ }
+})
+@UseInterceptors(
+ FileFieldsInterceptor([
+  {
+    name:'logo',
+    maxCount:1
+  },
+  {
+    name:'banner',
+    maxCount:1
+  }
+ ])
+)
 
   // =====================================================
   // GET ALL ACCEPTED COMPANY
