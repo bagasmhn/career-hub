@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 
 import {
+  ApiBody,
   ApiBearerAuth,
   ApiConsumes,
   ApiTags,
@@ -45,114 +46,62 @@ constructor(
 
 
 
-// =====================================================
-// JOBSEEKER
-// APPLY JOB + UPLOAD CV
-// =====================================================
-
-
-@ApiBearerAuth()
-
-@UseGuards(
- JwtAuthGuard,
- RolesGuard,
-)
-
-@Roles(Role.JOBSEEKER)
-
 @Post(':jobId')
+@ApiConsumes('multipart/form-data')
 
-@ApiConsumes(
-'multipart/form-data'
-)
+@ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+
+      cv: {
+        type: 'string',
+        format: 'binary',
+      },
+
+    },
+
+    required: [
+      'cv'
+    ],
+
+  },
+})
+
 
 @UseInterceptors(
-
-FileInterceptor(
-
-'cv',
-
-{
-
-limits:{
-
-fileSize:
-5 * 1024 * 1024,
-
-},
-
-
-fileFilter:
-
-(req,file,callback)=>{
-
-
-const allowed=[
-
-'application/pdf',
-
-'application/msword',
-
-'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-
-];
-
-
-if(
-!allowed.includes(file.mimetype)
-){
-
-return callback(
-
-new BadRequestException(
-'CV harus PDF, DOC, atau DOCX'
-),
-
-false
-
-);
-
-}
-
-
-callback(null,true);
-
-
-},
-
-}
-
-)
-
+  FileInterceptor('cv')
 )
 
 
 applyJob(
 
-@Param(
-'jobId',
-ParseIntPipe,
-)
-jobId:number,
+  @Param(
+    'jobId',
+    ParseIntPipe
+  )
+  jobId:number,
 
 
-@Req() req,
+  @UploadedFile()
+  cv:Express.Multer.File,
 
 
-@UploadedFile()
-cv:Express.Multer.File,
+  @Req()
+  req,
 
 ){
 
-return this.applicationService.applyJob(
 
-req.user.id,
+  return this.applicationService.applyJob(
 
-jobId,
+    req.user.id,
 
-cv,
+    jobId,
 
-);
+    cv,
+
+  );
 
 }
 

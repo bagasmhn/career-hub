@@ -26,7 +26,7 @@ let ApplicationController = class ApplicationController {
     constructor(applicationService) {
         this.applicationService = applicationService;
     }
-    applyJob(jobId, req, cv) {
+    applyJob(jobId, cv, req) {
         return this.applicationService.applyJob(req.user.id, jobId, cv);
     }
     findRecruiterApplications(req) {
@@ -50,30 +50,26 @@ let ApplicationController = class ApplicationController {
 };
 exports.ApplicationController = ApplicationController;
 __decorate([
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorators_1.Roles)(client_1.Role.JOBSEEKER),
     (0, common_1.Post)(':jobId'),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('cv', {
-        limits: {
-            fileSize: 5 * 1024 * 1024,
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: 'object',
+            properties: {
+                cv: {
+                    type: 'string',
+                    format: 'binary',
+                },
+            },
+            required: [
+                'cv'
+            ],
         },
-        fileFilter: (req, file, callback) => {
-            const allowed = [
-                'application/pdf',
-                'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            ];
-            if (!allowed.includes(file.mimetype)) {
-                return callback(new common_1.BadRequestException('CV harus PDF, DOC, atau DOCX'), false);
-            }
-            callback(null, true);
-        },
-    })),
+    }),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('cv')),
     __param(0, (0, common_1.Param)('jobId', common_1.ParseIntPipe)),
-    __param(1, (0, common_1.Req)()),
-    __param(2, (0, common_1.UploadedFile)()),
+    __param(1, (0, common_1.UploadedFile)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object, Object]),
     __metadata("design:returntype", void 0)

@@ -2,26 +2,26 @@ import { ApplicationService } from './application.service';
 export declare class ApplicationController {
     private readonly applicationService;
     constructor(applicationService: ApplicationService);
-    applyJob(jobId: number, req: any, cv: Express.Multer.File): Promise<{
+    applyJob(jobId: number, cv: Express.Multer.File, req: any): Promise<{
         message: string;
         data: {
             job: {
                 id: number;
+                title: string;
+                location: string;
                 company: {
                     id: number;
                     name: string;
                 };
-                title: string;
-                location: string;
             };
         } & {
-            id: number;
+            cvUrl: string;
+            status: import(".prisma/client").$Enums.StatusApplication;
             createdAt: Date;
             updatedAt: Date;
+            id: number;
             userId: number;
-            status: import(".prisma/client").$Enums.StatusApplication;
             jobId: number;
-            cvUrl: string;
         };
     }>;
     findRecruiterApplications(req: any): Promise<({
@@ -31,25 +31,25 @@ export declare class ApplicationController {
             fullname: string;
         };
         job: {
+            status: import(".prisma/client").$Enums.StatusJob;
             id: number;
+            title: string;
+            location: string;
+            salary: number | null;
             company: {
                 id: number;
                 name: string;
                 logo: string | null;
             };
-            status: import(".prisma/client").$Enums.StatusJob;
-            title: string;
-            location: string;
-            salary: number | null;
         };
     } & {
-        id: number;
+        cvUrl: string;
+        status: import(".prisma/client").$Enums.StatusApplication;
         createdAt: Date;
         updatedAt: Date;
+        id: number;
         userId: number;
-        status: import(".prisma/client").$Enums.StatusApplication;
         jobId: number;
-        cvUrl: string;
     })[]>;
     findOneForRecruiter(id: number, req: any): Promise<{
         user: {
@@ -59,126 +59,126 @@ export declare class ApplicationController {
         };
         job: {
             company: {
-                id: number;
-                email: string | null;
+                status: import(".prisma/client").$Enums.StatusRequest;
                 createdAt: Date;
                 updatedAt: Date;
-                name: string;
+                id: number;
+                userId: number;
                 description: string;
+                name: string;
+                logo: string | null;
+                banner: string | null;
+                email: string | null;
                 phone: string | null;
                 website: string | null;
                 industry: string | null;
                 address: string | null;
-                userId: number;
-                logo: string | null;
-                banner: string | null;
-                status: import(".prisma/client").$Enums.StatusRequest;
                 rejectionReason: string | null;
             };
         } & {
-            id: number;
+            status: import(".prisma/client").$Enums.StatusJob;
             createdAt: Date;
             updatedAt: Date;
-            description: string;
-            status: import(".prisma/client").$Enums.StatusJob;
+            id: number;
+            companyId: number;
             title: string;
+            description: string;
             location: string;
             salary: number | null;
-            companyId: number;
         };
     } & {
-        id: number;
+        cvUrl: string;
+        status: import(".prisma/client").$Enums.StatusApplication;
         createdAt: Date;
         updatedAt: Date;
+        id: number;
         userId: number;
-        status: import(".prisma/client").$Enums.StatusApplication;
         jobId: number;
-        cvUrl: string;
     }>;
     accept(id: number, req: any): Promise<{
         message: string;
         data: {
-            id: number;
+            cvUrl: string;
+            status: import(".prisma/client").$Enums.StatusApplication;
             createdAt: Date;
             updatedAt: Date;
+            id: number;
             userId: number;
-            status: import(".prisma/client").$Enums.StatusApplication;
             jobId: number;
-            cvUrl: string;
         };
     }>;
     reject(id: number, req: any): Promise<{
         message: string;
         data: {
-            id: number;
+            cvUrl: string;
+            status: import(".prisma/client").$Enums.StatusApplication;
             createdAt: Date;
             updatedAt: Date;
+            id: number;
             userId: number;
-            status: import(".prisma/client").$Enums.StatusApplication;
             jobId: number;
-            cvUrl: string;
         };
     }>;
     findMyApplications(req: any): Promise<({
         job: {
+            status: import(".prisma/client").$Enums.StatusJob;
             id: number;
+            title: string;
+            description: string;
+            location: string;
+            salary: number | null;
             company: {
                 id: number;
                 name: string;
                 logo: string | null;
             };
-            description: string;
-            status: import(".prisma/client").$Enums.StatusJob;
-            title: string;
-            location: string;
-            salary: number | null;
         };
     } & {
-        id: number;
+        cvUrl: string;
+        status: import(".prisma/client").$Enums.StatusApplication;
         createdAt: Date;
         updatedAt: Date;
+        id: number;
         userId: number;
-        status: import(".prisma/client").$Enums.StatusApplication;
         jobId: number;
-        cvUrl: string;
     })[]>;
     findMyApplication(id: number, req: any): Promise<{
         job: {
             company: {
-                id: number;
-                email: string | null;
+                status: import(".prisma/client").$Enums.StatusRequest;
                 createdAt: Date;
                 updatedAt: Date;
-                name: string;
+                id: number;
+                userId: number;
                 description: string;
+                name: string;
+                logo: string | null;
+                banner: string | null;
+                email: string | null;
                 phone: string | null;
                 website: string | null;
                 industry: string | null;
                 address: string | null;
-                userId: number;
-                logo: string | null;
-                banner: string | null;
-                status: import(".prisma/client").$Enums.StatusRequest;
                 rejectionReason: string | null;
             };
         } & {
-            id: number;
+            status: import(".prisma/client").$Enums.StatusJob;
             createdAt: Date;
             updatedAt: Date;
-            description: string;
-            status: import(".prisma/client").$Enums.StatusJob;
+            id: number;
+            companyId: number;
             title: string;
+            description: string;
             location: string;
             salary: number | null;
-            companyId: number;
         };
     } & {
-        id: number;
+        cvUrl: string;
+        status: import(".prisma/client").$Enums.StatusApplication;
         createdAt: Date;
         updatedAt: Date;
+        id: number;
         userId: number;
-        status: import(".prisma/client").$Enums.StatusApplication;
         jobId: number;
-        cvUrl: string;
     }>;
 }
