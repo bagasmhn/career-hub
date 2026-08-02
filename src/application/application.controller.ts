@@ -43,7 +43,31 @@ export class ApplicationController {
 constructor(
  private readonly applicationService: ApplicationService,
 ) {}
+@ApiBody({
 
+schema:{
+
+type:'object',
+
+properties:{
+
+
+cv:{
+
+type:'string',
+
+format:'binary',
+
+description:'Upload CV PDF/DOC/DOCX'
+
+}
+
+
+}
+
+}
+
+})
 
 
 @Post(':jobId')

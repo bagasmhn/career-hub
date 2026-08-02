@@ -97,15 +97,17 @@ export class CompanyController {
           example: 'Malang, Jawa Timur',
         },
 
-        logo: {
-          type: 'string',
-          format: 'binary',
-        },
+       logo: {
+  type: 'string',
+  format: 'binary',
+  description: 'Logo perusahaan',
+},
 
-        banner: {
-          type: 'string',
-          format: 'binary',
-        },
+banner: {
+  type: 'string',
+  format: 'binary',
+  description: 'Banner perusahaan',
+},
       },
 
       required: [
