@@ -29,34 +29,31 @@ model User {
 }
 
 model Company {
+  id              Int    @id @default(autoincrement())
 
-  id          Int    @id @default(autoincrement())
+  userId          Int    @unique
+  user            User   @relation(fields: [userId], references: [id])
 
-  userId      Int    @unique
-  user        User   @relation(fields: [userId], references: [id])
+  name            String
+  description     String @db.Text
 
-  name        String
-  description String
+  logo            String?
+  banner          String?
 
-  email       String?
-  phone       String?
+  email           String?
+  phone           String?
+  website         String?
+  industry        String?
+  address         String?
 
-  website     String?
-
-  industry    String?
-
-  address     String?
-
-  status      StatusRequest @default(PENDING)
-
+  status          StatusRequest @default(PENDING)
   rejectionReason String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@map("company")
 }
-
 enum StatusRequest {
   PENDING
   ACCEPTED
