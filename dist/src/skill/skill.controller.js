@@ -17,7 +17,7 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const skill_service_1 = require("./skill.service");
 const create_skill_dto_1 = require("./dto/create-skill.dto");
-const jwt_auth_guard_1 = require("../auth/guard/jwt-auth.guard");
+const jwt_auth_guard_1 = require("src/auth/guard/jwt-auth.guard");
 let SkillController = class SkillController {
     skillService;
     constructor(skillService) {

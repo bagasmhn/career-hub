@@ -17,9 +17,9 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const client_1 = require("@prisma/client");
 const application_service_1 = require("./application.service");
-const jwt_auth_guard_1 = require("../auth/guard/jwt-auth.guard");
-const roles_guard_1 = require("../auth/guard/roles.guard");
-const roles_decorators_1 = require("../auth/decorators/roles.decorators");
+const jwt_auth_guard_1 = require("src/auth/guard/jwt-auth.guard");
+const roles_guard_1 = require("src/auth/guard/roles.guard");
+const roles_decorators_1 = require("src/auth/decorators/roles.decorators");
 let ApplicationController = class ApplicationController {
     applicationService;
     constructor(applicationService) {
