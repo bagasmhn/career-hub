@@ -6,6 +6,9 @@ import { UserModule } from './user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { CompanyModule } from './company/company.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { SkillModule } from './skill/skill.module';
+import { JobModule } from './job/job.module';
+import { ApplicationModule } from './application/application.module';
 
 @Module({
   imports: [
@@ -14,6 +17,9 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     UserModule,
     CompanyModule,
     CloudinaryModule,
+    SkillModule,
+    JobModule,
+    ApplicationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

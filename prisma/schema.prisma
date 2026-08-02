@@ -14,46 +14,105 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  fullname  String
-  email     String   @unique
-  password  String
-
-  role      Role
-  company Company?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           Int           @id @default(autoincrement())
+  fullname     String
+  email        String        @unique
+  password     String
+  skills       UserSkill[]
+  role         Role
+  company      Company?
+  applications Application[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@map("user")
 }
 
 model Company {
-  id              Int    @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  userId          Int    @unique
-  user            User   @relation(fields: [userId], references: [id])
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
 
-  name            String
-  description     String @db.Text
+  name        String
+  description String @db.Text
 
-  logo            String?
-  banner          String?
+  logo   String?
+  banner String?
 
   email           String?
   phone           String?
   website         String?
   industry        String?
   address         String?
-
+  job             Job[]
   status          StatusRequest @default(PENDING)
   rejectionReason String?
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("company")
 }
+
+model Skill {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  users UserSkill[]
+}
+
+model UserSkill {
+  id Int @id @default(autoincrement())
+
+  userId  Int
+  skillId Int
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, skillId])
+}
+
+model Job {
+  id        Int     @id @default(autoincrement())
+  companyId Int
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String    @db.Text
+  location    String
+  salary      Float?
+  status      StatusJob @default(OPEN)
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  applications Application[]
+
+  @@map("job")
+}
+
+model Application {
+  id Int @id @default(autoincrement())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  jobId Int
+  job   Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  cvUrl String
+status StatusApplication @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, jobId])
+  @@map("application")
+}
+
 enum StatusRequest {
   PENDING
   ACCEPTED
@@ -65,4 +124,14 @@ enum Role {
   SUPERADMIN
   RECRUITER
   JOBSEEKER
+}
+
+enum StatusJob {
+  OPEN
+  CLOSED
+}
+enum StatusApplication {
+  PENDING
+  ACCEPTED
+  REJECTED
 }

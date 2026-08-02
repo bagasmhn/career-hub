@@ -11,6 +11,11 @@ export class CloudinaryService {
     });
   }
 
+  // =====================================================
+  // UPLOAD IMAGE
+  // Untuk logo, banner, dan gambar lainnya
+  // =====================================================
+
   async uploadImage(
     file: Express.Multer.File,
     folder: string,
@@ -21,6 +26,35 @@ export class CloudinaryService {
           {
             folder,
             resource_type: 'image',
+          },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          },
+        );
+
+      uploadStream.end(file.buffer);
+    });
+  }
+
+  // =====================================================
+  // UPLOAD FILE
+  // Untuk CV PDF, DOC, DOCX
+  // =====================================================
+
+  async uploadFile(
+    file: Express.Multer.File,
+    folder: string,
+  ) {
+    return new Promise<any>((resolve, reject) => {
+      const uploadStream =
+        cloudinary.uploader.upload_stream(
+          {
+            folder,
+            resource_type: 'raw',
           },
           (error, result) => {
             if (error) {
