@@ -1,24 +1,17 @@
 import {
-  BadRequestException,
   Controller,
   Get,
   Param,
   ParseIntPipe,
-  Post,
+  Patch,
   Req,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 
 import {
   ApiBearerAuth,
-  ApiBody,
-  ApiConsumes,
   ApiTags,
 } from '@nestjs/swagger';
-
-import { FileInterceptor } from '@nestjs/platform-express';
 
 import { Role } from '@prisma/client';
 
@@ -36,93 +29,116 @@ export class ApplicationController {
   ) {}
 
   // =====================================================
-  // APPLY JOB
-  // POST /api/applications/:jobId
-  // JOBSEEKER
+  // RECRUITER
+  // GET ALL APPLICATION
   // =====================================================
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.JOBSEEKER)
-  @Post(':jobId')
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-
-      properties: {
-        cv: {
-          type: 'string',
-          format: 'binary',
-          description:
-            'CV dalam format PDF, DOC, atau DOCX',
-        },
-      },
-
-      required: ['cv'],
-    },
-  })
-  @UseInterceptors(
-    FileInterceptor('cv', {
-      limits: {
-        fileSize: 5 * 1024 * 1024,
-      },
-
-      fileFilter: (
-        req,
-        file,
-        callback,
-      ) => {
-        const allowedMimeTypes = [
-          'application/pdf',
-          'application/msword',
-          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        ];
-
-        if (
-          !allowedMimeTypes.includes(
-            file.mimetype,
-          )
-        ) {
-          return callback(
-            new BadRequestException(
-              'CV harus berupa PDF, DOC, atau DOCX.',
-            ),
-            false,
-          );
-        }
-
-        callback(null, true);
-      },
-    }),
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
   )
-  apply(
+  @Roles(Role.RECRUITER)
+  @Get('recruiter')
+  findRecruiterApplications(
     @Req() req,
-
-    @Param(
-      'jobId',
-      ParseIntPipe,
-    )
-    jobId: number,
-
-    @UploadedFile()
-    cv: Express.Multer.File,
   ) {
-    return this.applicationService.apply(
+    return this.applicationService.findRecruiterApplications(
       req.user.id,
-      jobId,
-      cv,
     );
   }
 
   // =====================================================
-  // GET MY APPLICATIONS
-  // GET /api/applications/me
-  // JOBSEEKER
+  // RECRUITER
+  // GET APPLICATION BY ID
   // =====================================================
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles(Role.RECRUITER)
+  @Get('recruiter/:id')
+  findOneForRecruiter(
+    @Param(
+      'id',
+      ParseIntPipe,
+    )
+    id: number,
+
+    @Req() req,
+  ) {
+    return this.applicationService.findOneForRecruiter(
+      id,
+      req.user.id,
+    );
+  }
+
+  // =====================================================
+  // RECRUITER
+  // ACCEPT APPLICATION
+  // =====================================================
+
+  @ApiBearerAuth()
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles(Role.RECRUITER)
+  @Patch(':id/accept')
+  accept(
+    @Param(
+      'id',
+      ParseIntPipe,
+    )
+    id: number,
+
+    @Req() req,
+  ) {
+    return this.applicationService.accept(
+      id,
+      req.user.id,
+    );
+  }
+
+  // =====================================================
+  // RECRUITER
+  // REJECT APPLICATION
+  // =====================================================
+
+  @ApiBearerAuth()
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles(Role.RECRUITER)
+  @Patch(':id/reject')
+  reject(
+    @Param(
+      'id',
+      ParseIntPipe,
+    )
+    id: number,
+
+    @Req() req,
+  ) {
+    return this.applicationService.reject(
+      id,
+      req.user.id,
+    );
+  }
+
+  // =====================================================
+  // JOBSEEKER
+  // GET MY APPLICATIONS
+  // =====================================================
+
+  @ApiBearerAuth()
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
   @Roles(Role.JOBSEEKER)
   @Get('me')
   findMyApplications(
@@ -134,39 +150,18 @@ export class ApplicationController {
   }
 
   // =====================================================
-  // GET APPLICANTS BY JOB
-  // GET /api/applications/job/:jobId
-  // RECRUITER
+  // JOBSEEKER
+  // GET MY APPLICATION BY ID
   // =====================================================
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.RECRUITER)
-  @Get('job/:jobId')
-  findByJob(
-    @Param(
-      'jobId',
-      ParseIntPipe,
-    )
-    jobId: number,
-
-    @Req() req,
-  ) {
-    return this.applicationService.findByJob(
-      jobId,
-      req.user.id,
-    );
-  }
-
-  // =====================================================
-  // GET APPLICATION BY ID
-  // GET /api/applications/:id
-  // =====================================================
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  findOne(
+  @UseGuards(
+    JwtAuthGuard,
+    RolesGuard,
+  )
+  @Roles(Role.JOBSEEKER)
+  @Get('me/:id')
+  findMyApplication(
     @Param(
       'id',
       ParseIntPipe,
@@ -175,7 +170,7 @@ export class ApplicationController {
 
     @Req() req,
   ) {
-    return this.applicationService.findOne(
+    return this.applicationService.findMyApplication(
       id,
       req.user.id,
     );
