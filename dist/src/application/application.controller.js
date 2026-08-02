@@ -26,17 +26,26 @@ let ApplicationController = class ApplicationController {
     constructor(applicationService) {
         this.applicationService = applicationService;
     }
-    apply(req, jobId, cv) {
-        return this.applicationService.apply(req.user.id, jobId, cv);
+    applyJob(jobId, req, cv) {
+        return this.applicationService.applyJob(req.user.id, jobId, cv);
+    }
+    findRecruiterApplications(req) {
+        return this.applicationService.findRecruiterApplications(req.user.id);
+    }
+    findOneForRecruiter(id, req) {
+        return this.applicationService.findOneForRecruiter(id, req.user.id);
+    }
+    accept(id, req) {
+        return this.applicationService.accept(id, req.user.id);
+    }
+    reject(id, req) {
+        return this.applicationService.reject(id, req.user.id);
     }
     findMyApplications(req) {
         return this.applicationService.findMyApplications(req.user.id);
     }
-    findByJob(jobId, req) {
-        return this.applicationService.findByJob(jobId, req.user.id);
-    }
-    findOne(id, req) {
-        return this.applicationService.findOne(id, req.user.id);
+    findMyApplication(id, req) {
+        return this.applicationService.findMyApplication(id, req.user.id);
     }
 };
 exports.ApplicationController = ApplicationController;
@@ -46,42 +55,72 @@ __decorate([
     (0, roles_decorators_1.Roles)(client_1.Role.JOBSEEKER),
     (0, common_1.Post)(':jobId'),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
-    (0, swagger_1.ApiBody)({
-        schema: {
-            type: 'object',
-            properties: {
-                cv: {
-                    type: 'string',
-                    format: 'binary',
-                    description: 'CV dalam format PDF, DOC, atau DOCX',
-                },
-            },
-            required: ['cv'],
-        },
-    }),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('cv', {
         limits: {
             fileSize: 5 * 1024 * 1024,
         },
         fileFilter: (req, file, callback) => {
-            const allowedMimeTypes = [
+            const allowed = [
                 'application/pdf',
                 'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
             ];
-            if (!allowedMimeTypes.includes(file.mimetype)) {
-                return callback(new common_1.BadRequestException('CV harus berupa PDF, DOC, atau DOCX.'), false);
+            if (!allowed.includes(file.mimetype)) {
+                return callback(new common_1.BadRequestException('CV harus PDF, DOC, atau DOCX'), false);
             }
             callback(null, true);
         },
     })),
-    __param(0, (0, common_1.Req)()),
-    __param(1, (0, common_1.Param)('jobId', common_1.ParseIntPipe)),
+    __param(0, (0, common_1.Param)('jobId', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Req)()),
     __param(2, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Number, Object]),
+    __metadata("design:paramtypes", [Number, Object, Object]),
     __metadata("design:returntype", void 0)
-], ApplicationController.prototype, "apply", null);
+], ApplicationController.prototype, "applyJob", null);
+__decorate([
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorators_1.Roles)(client_1.Role.RECRUITER),
+    (0, common_1.Get)('recruiter'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], ApplicationController.prototype, "findRecruiterApplications", null);
+__decorate([
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorators_1.Roles)(client_1.Role.RECRUITER),
+    (0, common_1.Get)('recruiter/:id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", void 0)
+], ApplicationController.prototype, "findOneForRecruiter", null);
+__decorate([
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorators_1.Roles)(client_1.Role.RECRUITER),
+    (0, common_1.Patch)(':id/accept'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", void 0)
+], ApplicationController.prototype, "accept", null);
+__decorate([
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorators_1.Roles)(client_1.Role.RECRUITER),
+    (0, common_1.Patch)(':id/reject'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", void 0)
+], ApplicationController.prototype, "reject", null);
 __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
@@ -95,24 +134,14 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorators_1.Roles)(client_1.Role.RECRUITER),
-    (0, common_1.Get)('job/:jobId'),
-    __param(0, (0, common_1.Param)('jobId', common_1.ParseIntPipe)),
-    __param(1, (0, common_1.Req)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
-    __metadata("design:returntype", void 0)
-], ApplicationController.prototype, "findByJob", null);
-__decorate([
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, common_1.Get)(':id'),
+    (0, roles_decorators_1.Roles)(client_1.Role.JOBSEEKER),
+    (0, common_1.Get)('me/:id'),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", void 0)
-], ApplicationController.prototype, "findOne", null);
+], ApplicationController.prototype, "findMyApplication", null);
 exports.ApplicationController = ApplicationController = __decorate([
     (0, swagger_1.ApiTags)('Applications'),
     (0, common_1.Controller)('applications'),

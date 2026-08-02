@@ -14,21 +14,42 @@ import {
   PrismaModule,
 } from '../prisma/prisma.module';
 
+import {
+  CloudinaryModule,
+} from '../cloudinary/cloudinary.module';
+
+
 @Module({
+
   imports: [
+
     PrismaModule,
+
+    CloudinaryModule,
+
   ],
+
 
   controllers: [
+
     ApplicationController,
+
   ],
+
 
   providers: [
+
     ApplicationService,
+
   ],
 
+
   exports: [
+
     ApplicationService,
+
   ],
+
+
 })
 export class ApplicationModule {}

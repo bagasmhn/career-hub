@@ -21,7 +21,7 @@ let ApplicationService = class ApplicationService {
         this.prisma = prisma;
         this.cloudinaryService = cloudinaryService;
     }
-    async apply(userId, jobId, cv) {
+    async applyJob(userId, jobId, file) {
         const user = await this.prisma.user.findUnique({
             where: {
                 id: userId,
@@ -31,30 +31,20 @@ let ApplicationService = class ApplicationService {
             throw new common_1.NotFoundException('User tidak ditemukan.');
         }
         if (user.role !== client_1.Role.JOBSEEKER) {
-            throw new common_1.ForbiddenException('Hanya jobseeker yang dapat melamar pekerjaan.');
-        }
-        if (!cv) {
-            throw new common_1.BadRequestException('CV wajib diupload.');
+            throw new common_1.ForbiddenException('Hanya jobseeker yang dapat melamar.');
         }
         const job = await this.prisma.job.findUnique({
             where: {
                 id: jobId,
             },
-            include: {
-                company: true,
-            },
         });
         if (!job) {
             throw new common_1.NotFoundException('Job tidak ditemukan.');
         }
-        if (job.company.status !==
-            client_1.StatusRequest.ACCEPTED) {
-            throw new common_1.ForbiddenException('Company belum disetujui admin.');
-        }
         if (job.status !== client_1.StatusJob.OPEN) {
-            throw new common_1.BadRequestException('Job sudah ditutup dan tidak dapat dilamar.');
+            throw new common_1.BadRequestException('Job sudah ditutup.');
         }
-        const existingApplication = await this.prisma.application.findUnique({
+        const existing = await this.prisma.application.findUnique({
             where: {
                 userId_jobId: {
                     userId,
@@ -62,16 +52,46 @@ let ApplicationService = class ApplicationService {
                 },
             },
         });
-        if (existingApplication) {
-            throw new common_1.BadRequestException('Kamu sudah melamar pekerjaan ini.');
+        if (existing) {
+            throw new common_1.BadRequestException('Kamu sudah pernah melamar pekerjaan ini.');
         }
-        const result = await this.cloudinaryService.uploadFile(cv, 'careerhub/applications/cv');
-        const cvUrl = result.secure_url;
+        const upload = await this.cloudinaryService.uploadFile(file, 'careerhub/cv');
         const application = await this.prisma.application.create({
             data: {
                 userId,
                 jobId,
-                cvUrl,
+                cvUrl: upload.secure_url,
+                status: client_1.StatusApplication.PENDING,
+            },
+            include: {
+                job: {
+                    select: {
+                        id: true,
+                        title: true,
+                        location: true,
+                        company: {
+                            select: {
+                                id: true,
+                                name: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+        return {
+            message: 'Lamaran berhasil dikirim.',
+            data: application,
+        };
+    }
+    async findRecruiterApplications(userId) {
+        return this.prisma.application.findMany({
+            where: {
+                job: {
+                    company: {
+                        userId,
+                    },
+                },
             },
             include: {
                 user: {
@@ -87,6 +107,7 @@ let ApplicationService = class ApplicationService {
                         title: true,
                         location: true,
                         salary: true,
+                        status: true,
                         company: {
                             select: {
                                 id: true,
@@ -97,10 +118,75 @@ let ApplicationService = class ApplicationService {
                     },
                 },
             },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+    }
+    async findOneForRecruiter(id, userId) {
+        const application = await this.prisma.application.findUnique({
+            where: {
+                id,
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        fullname: true,
+                        email: true,
+                    },
+                },
+                job: {
+                    include: {
+                        company: true,
+                    },
+                },
+            },
+        });
+        if (!application) {
+            throw new common_1.NotFoundException('Application tidak ditemukan.');
+        }
+        if (application.job.company.userId !== userId) {
+            throw new common_1.ForbiddenException('Kamu tidak memiliki akses.');
+        }
+        return application;
+    }
+    async accept(id, userId) {
+        const application = await this.findOneForRecruiter(id, userId);
+        if (application.status !==
+            client_1.StatusApplication.PENDING) {
+            throw new common_1.BadRequestException('Application sudah diproses.');
+        }
+        const updated = await this.prisma.application.update({
+            where: {
+                id,
+            },
+            data: {
+                status: client_1.StatusApplication.ACCEPTED,
+            },
         });
         return {
-            message: 'Lamaran berhasil dikirim.',
-            data: application,
+            message: 'Lamaran diterima.',
+            data: updated,
+        };
+    }
+    async reject(id, userId) {
+        const application = await this.findOneForRecruiter(id, userId);
+        if (application.status !==
+            client_1.StatusApplication.PENDING) {
+            throw new common_1.BadRequestException('Application sudah diproses.');
+        }
+        const updated = await this.prisma.application.update({
+            where: {
+                id,
+            },
+            data: {
+                status: client_1.StatusApplication.REJECTED,
+            },
+        });
+        return {
+            message: 'Lamaran ditolak.',
+            data: updated,
         };
     }
     async findMyApplications(userId) {
@@ -132,19 +218,12 @@ let ApplicationService = class ApplicationService {
             },
         });
     }
-    async findOne(id, userId) {
+    async findMyApplication(id, userId) {
         const application = await this.prisma.application.findUnique({
             where: {
                 id,
             },
             include: {
-                user: {
-                    select: {
-                        id: true,
-                        fullname: true,
-                        email: true,
-                    },
-                },
                 job: {
                     include: {
                         company: true,
@@ -153,57 +232,12 @@ let ApplicationService = class ApplicationService {
             },
         });
         if (!application) {
-            throw new common_1.NotFoundException('Lamaran tidak ditemukan.');
+            throw new common_1.NotFoundException('Application tidak ditemukan.');
         }
-        if (application.userId === userId) {
-            return application;
+        if (application.userId !== userId) {
+            throw new common_1.ForbiddenException('Kamu tidak memiliki akses.');
         }
-        if (application.job.company.userId ===
-            userId) {
-            return application;
-        }
-        throw new common_1.ForbiddenException('Kamu tidak memiliki akses ke lamaran ini.');
-    }
-    async findByJob(jobId, userId) {
-        const job = await this.prisma.job.findUnique({
-            where: {
-                id: jobId,
-            },
-            include: {
-                company: true,
-            },
-        });
-        if (!job) {
-            throw new common_1.NotFoundException('Job tidak ditemukan.');
-        }
-        if (job.company.userId !== userId) {
-            throw new common_1.ForbiddenException('Kamu tidak memiliki job ini.');
-        }
-        return this.prisma.application.findMany({
-            where: {
-                jobId,
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        fullname: true,
-                        email: true,
-                    },
-                },
-                job: {
-                    select: {
-                        id: true,
-                        title: true,
-                        location: true,
-                        status: true,
-                    },
-                },
-            },
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
+        return application;
     }
 };
 exports.ApplicationService = ApplicationService;
