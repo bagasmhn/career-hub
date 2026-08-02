@@ -13,7 +13,7 @@ exports.CompanyService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_1 = require("@prisma/client");
-const cloudinary_service_1 = require("src/cloudinary/cloudinary.service");
+const cloudinary_service_1 = require("../cloudinary/cloudinary.service");
 let CompanyService = class CompanyService {
     prisma;
     cloudinaryService;

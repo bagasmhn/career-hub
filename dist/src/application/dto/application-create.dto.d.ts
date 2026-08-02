@@ -1,2 +1,2 @@
-export declare class applicationCreateDto {
+export declare class CreateApplicationDto {
 }

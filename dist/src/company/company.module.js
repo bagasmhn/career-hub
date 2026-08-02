@@ -10,8 +10,8 @@ exports.CompanyModule = void 0;
 const common_1 = require("@nestjs/common");
 const company_controller_1 = require("./company.controller");
 const company_service_1 = require("./company.service");
-const prisma_service_1 = require("src/prisma/prisma.service");
-const cloudinary_module_1 = require("src/cloudinary/cloudinary.module");
+const prisma_service_1 = require("../prisma/prisma.service");
+const cloudinary_module_1 = require("../cloudinary/cloudinary.module");
 let CompanyModule = class CompanyModule {
 };
 exports.CompanyModule = CompanyModule;

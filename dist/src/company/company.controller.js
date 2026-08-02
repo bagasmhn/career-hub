@@ -22,9 +22,9 @@ const company_service_1 = require("./company.service");
 const create_dto_1 = require("./dto/create.dto");
 const update_company_dto_1 = require("./dto/update-company.dto");
 const reject_company_dto_1 = require("./dto/reject-company.dto");
-const jwt_auth_guard_1 = require("src/auth/guard/jwt-auth.guard");
-const roles_guard_1 = require("src/auth/guard/roles.guard");
-const roles_decorators_1 = require("src/auth/decorators/roles.decorators");
+const jwt_auth_guard_1 = require("../auth/guard/jwt-auth.guard");
+const roles_guard_1 = require("../auth/guard/roles.guard");
+const roles_decorators_1 = require("../auth/decorators/roles.decorators");
 let CompanyController = class CompanyController {
     companyService;
     constructor(companyService) {

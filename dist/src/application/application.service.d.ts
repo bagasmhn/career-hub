@@ -1,13 +1,39 @@
 import { PrismaService } from '../prisma/prisma.service';
+import { CloudinaryService } from "../cloudinary/cloudinary.service";
 export declare class ApplicationService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
-    findRecruiterApplications(userId: number): Promise<({
-        user: {
+    private readonly cloudinaryService;
+    constructor(prisma: PrismaService, cloudinaryService: CloudinaryService);
+    apply(userId: number, jobId: number, cv: Express.Multer.File): Promise<{
+        message: string;
+        data: {
+            user: {
+                id: number;
+                email: string;
+                fullname: string;
+            };
+            job: {
+                id: number;
+                company: {
+                    id: number;
+                    name: string;
+                    logo: string | null;
+                };
+                title: string;
+                location: string;
+                salary: number | null;
+            };
+        } & {
             id: number;
-            email: string;
-            fullname: string;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: number;
+            status: import(".prisma/client").$Enums.StatusApplication;
+            jobId: number;
+            cvUrl: string;
         };
+    }>;
+    findMyApplications(userId: number): Promise<({
         job: {
             id: number;
             company: {
@@ -15,6 +41,7 @@ export declare class ApplicationService {
                 name: string;
                 logo: string | null;
             };
+            description: string;
             status: import(".prisma/client").$Enums.StatusJob;
             title: string;
             location: string;
@@ -29,7 +56,7 @@ export declare class ApplicationService {
         jobId: number;
         cvUrl: string;
     })[]>;
-    findOneForRecruiter(id: number, userId: number): Promise<{
+    findOne(id: number, userId: number): Promise<{
         user: {
             id: number;
             email: string;
@@ -73,63 +100,17 @@ export declare class ApplicationService {
         jobId: number;
         cvUrl: string;
     }>;
-    accept(id: number, userId: number): Promise<{
-        message: string;
-        data: {
-            user: {
-                id: number;
-                email: string;
-                fullname: string;
-            };
-            job: {
-                id: number;
-                title: string;
-            };
-        } & {
+    findByJob(jobId: number, userId: number): Promise<({
+        user: {
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
-            userId: number;
-            status: import(".prisma/client").$Enums.StatusApplication;
-            jobId: number;
-            cvUrl: string;
+            email: string;
+            fullname: string;
         };
-    }>;
-    reject(id: number, userId: number): Promise<{
-        message: string;
-        data: {
-            user: {
-                id: number;
-                email: string;
-                fullname: string;
-            };
-            job: {
-                id: number;
-                title: string;
-            };
-        } & {
-            id: number;
-            createdAt: Date;
-            updatedAt: Date;
-            userId: number;
-            status: import(".prisma/client").$Enums.StatusApplication;
-            jobId: number;
-            cvUrl: string;
-        };
-    }>;
-    findMyApplications(userId: number): Promise<({
         job: {
             id: number;
-            company: {
-                id: number;
-                name: string;
-                logo: string | null;
-            };
-            description: string;
             status: import(".prisma/client").$Enums.StatusJob;
             title: string;
             location: string;
-            salary: number | null;
         };
     } & {
         id: number;
@@ -140,27 +121,4 @@ export declare class ApplicationService {
         jobId: number;
         cvUrl: string;
     })[]>;
-    findMyApplication(id: number, userId: number): Promise<{
-        job: {
-            id: number;
-            company: {
-                id: number;
-                name: string;
-                logo: string | null;
-            };
-            description: string;
-            status: import(".prisma/client").$Enums.StatusJob;
-            title: string;
-            location: string;
-            salary: number | null;
-        };
-    } & {
-        id: number;
-        createdAt: Date;
-        updatedAt: Date;
-        userId: number;
-        status: import(".prisma/client").$Enums.StatusApplication;
-        jobId: number;
-        cvUrl: string;
-    }>;
 }

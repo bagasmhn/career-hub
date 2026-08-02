@@ -11,20 +11,22 @@ import {
 } from './application.service';
 
 import {
-  PrismaModule,
-} from '../prisma/prisma.module';
+  PrismaService,
+} from '../prisma/prisma.service';
+
+import {
+  CloudinaryService,
+} from '../cloudinary/cloudinary.service';
 
 @Module({
-  imports: [
-    PrismaModule,
-  ],
-
   controllers: [
     ApplicationController,
   ],
 
   providers: [
     ApplicationService,
+    PrismaService,
+    CloudinaryService,
   ],
 
   exports: [

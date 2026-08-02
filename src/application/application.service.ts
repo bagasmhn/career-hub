@@ -9,254 +9,191 @@ import { PrismaService } from '../prisma/prisma.service';
 
 import {
   Role,
-  StatusApplication,
   StatusJob,
   StatusRequest,
 } from '@prisma/client';
+
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class ApplicationService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   // =====================================================
-  // GET ALL APPLICATION
-  // RECRUITER
-  // HANYA LAMARAN PADA JOB MILIKNYA
+  // APPLY JOB
+  // JOBSEEKER
   // =====================================================
 
-  async findRecruiterApplications(
+  async apply(
     userId: number,
+    jobId: number,
+    cv: Express.Multer.File,
   ) {
-    return this.prisma.application.findMany({
-      where: {
-        job: {
-          company: {
+    // =====================================================
+    // 1. CEK USER
+    // =====================================================
+
+    const user =
+      await this.prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+      });
+
+    if (!user) {
+      throw new NotFoundException(
+        'User tidak ditemukan.',
+      );
+    }
+
+    // =====================================================
+    // 2. CEK ROLE
+    // =====================================================
+
+    if (user.role !== Role.JOBSEEKER) {
+      throw new ForbiddenException(
+        'Hanya jobseeker yang dapat melamar pekerjaan.',
+      );
+    }
+
+    // =====================================================
+    // 3. CV WAJIB
+    // =====================================================
+
+    if (!cv) {
+      throw new BadRequestException(
+        'CV wajib diupload.',
+      );
+    }
+
+    // =====================================================
+    // 4. CEK JOB
+    // =====================================================
+
+    const job =
+      await this.prisma.job.findUnique({
+        where: {
+          id: jobId,
+        },
+
+        include: {
+          company: true,
+        },
+      });
+
+    if (!job) {
+      throw new NotFoundException(
+        'Job tidak ditemukan.',
+      );
+    }
+
+    // =====================================================
+    // 5. CEK COMPANY
+    // =====================================================
+
+    if (
+      job.company.status !==
+      StatusRequest.ACCEPTED
+    ) {
+      throw new ForbiddenException(
+        'Company belum disetujui admin.',
+      );
+    }
+
+    // =====================================================
+    // 6. CEK STATUS JOB
+    // =====================================================
+
+    if (job.status !== StatusJob.OPEN) {
+      throw new BadRequestException(
+        'Job sudah ditutup dan tidak dapat dilamar.',
+      );
+    }
+
+    // =====================================================
+    // 7. CEK SUDAH PERNAH APPLY
+    // =====================================================
+
+    const existingApplication =
+      await this.prisma.application.findUnique({
+        where: {
+          userId_jobId: {
             userId,
+            jobId,
           },
         },
-      },
+      });
 
-      include: {
-        user: {
-          select: {
-            id: true,
-            fullname: true,
-            email: true,
-          },
+    if (existingApplication) {
+      throw new BadRequestException(
+        'Kamu sudah melamar pekerjaan ini.',
+      );
+    }
+
+    // =====================================================
+    // 8. UPLOAD CV KE CLOUDINARY
+    // =====================================================
+
+    const result =
+      await this.cloudinaryService.uploadFile(
+        cv,
+        'careerhub/applications/cv',
+      );
+
+    const cvUrl = result.secure_url;
+
+    // =====================================================
+    // 9. SIMPAN APPLICATION
+    // =====================================================
+
+    const application =
+      await this.prisma.application.create({
+        data: {
+          userId,
+          jobId,
+          cvUrl,
         },
 
-        job: {
-          select: {
-            id: true,
-            title: true,
-            location: true,
-            salary: true,
-            status: true,
+        include: {
+          user: {
+            select: {
+              id: true,
+              fullname: true,
+              email: true,
+            },
+          },
 
-            company: {
-              select: {
-                id: true,
-                name: true,
-                logo: true,
+          job: {
+            select: {
+              id: true,
+              title: true,
+              location: true,
+              salary: true,
+
+              company: {
+                select: {
+                  id: true,
+                  name: true,
+                  logo: true,
+                },
               },
             },
           },
         },
-      },
-
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-  }
-
-  // =====================================================
-  // GET APPLICATION BY ID
-  // RECRUITER
-  // =====================================================
-
-  async findOneForRecruiter(
-    id: number,
-    userId: number,
-  ) {
-    const application =
-      await this.prisma.application.findUnique({
-        where: {
-          id,
-        },
-
-        include: {
-          user: {
-            select: {
-              id: true,
-              fullname: true,
-              email: true,
-            },
-          },
-
-          job: {
-            include: {
-              company: true,
-            },
-          },
-        },
-      });
-
-    if (!application) {
-      throw new NotFoundException(
-        'Application tidak ditemukan.',
-      );
-    }
-
-    // Pastikan job berasal dari company recruiter
-    if (
-      application.job.company.userId !==
-      userId
-    ) {
-      throw new ForbiddenException(
-        'Kamu tidak memiliki akses ke application ini.',
-      );
-    }
-
-    return application;
-  }
-
-  // =====================================================
-  // ACCEPT APPLICATION
-  // RECRUITER
-  // =====================================================
-
-  async accept(
-    id: number,
-    userId: number,
-  ) {
-    const application =
-      await this.findOneForRecruiter(
-        id,
-        userId,
-      );
-
-    // Hanya PENDING yang bisa diterima
-    if (
-      application.status !==
-      StatusApplication.PENDING
-    ) {
-      throw new BadRequestException(
-        'Application sudah diproses.',
-      );
-    }
-
-    // Pastikan job masih OPEN
-    if (
-      application.job.status !==
-      StatusJob.OPEN
-    ) {
-      throw new BadRequestException(
-        'Job sudah ditutup.',
-      );
-    }
-
-    const updatedApplication =
-      await this.prisma.application.update({
-        where: {
-          id,
-        },
-
-        data: {
-          status:
-            StatusApplication.ACCEPTED,
-        },
-
-        include: {
-          user: {
-            select: {
-              id: true,
-              fullname: true,
-              email: true,
-            },
-          },
-
-          job: {
-            select: {
-              id: true,
-              title: true,
-            },
-          },
-        },
       });
 
     return {
       message:
-        'Application berhasil diterima.',
-      data: updatedApplication,
+        'Lamaran berhasil dikirim.',
+      data: application,
     };
   }
 
   // =====================================================
-  // REJECT APPLICATION
-  // RECRUITER
-  // =====================================================
-
-  async reject(
-    id: number,
-    userId: number,
-  ) {
-    const application =
-      await this.findOneForRecruiter(
-        id,
-        userId,
-      );
-
-    // Hanya PENDING yang bisa ditolak
-    if (
-      application.status !==
-      StatusApplication.PENDING
-    ) {
-      throw new BadRequestException(
-        'Application sudah diproses.',
-      );
-    }
-
-    const updatedApplication =
-      await this.prisma.application.update({
-        where: {
-          id,
-        },
-
-        data: {
-          status:
-            StatusApplication.REJECTED,
-        },
-
-        include: {
-          user: {
-            select: {
-              id: true,
-              fullname: true,
-              email: true,
-            },
-          },
-
-          job: {
-            select: {
-              id: true,
-              title: true,
-            },
-          },
-        },
-      });
-
-    return {
-      message:
-        'Application berhasil ditolak.',
-      data: updatedApplication,
-    };
-  }
-
-  // =====================================================
-  // GET MY APPLICATION
+  // GET MY APPLICATIONS
   // JOBSEEKER
   // =====================================================
 
@@ -297,10 +234,10 @@ export class ApplicationService {
 
   // =====================================================
   // GET APPLICATION BY ID
-  // JOBSEEKER
+  // JOBSEEKER / RECRUITER
   // =====================================================
 
-  async findMyApplication(
+  async findOne(
     id: number,
     userId: number,
   ) {
@@ -311,22 +248,17 @@ export class ApplicationService {
         },
 
         include: {
-          job: {
+          user: {
             select: {
               id: true,
-              title: true,
-              description: true,
-              location: true,
-              salary: true,
-              status: true,
+              fullname: true,
+              email: true,
+            },
+          },
 
-              company: {
-                select: {
-                  id: true,
-                  name: true,
-                  logo: true,
-                },
-              },
+          job: {
+            include: {
+              company: true,
             },
           },
         },
@@ -334,18 +266,93 @@ export class ApplicationService {
 
     if (!application) {
       throw new NotFoundException(
-        'Application tidak ditemukan.',
+        'Lamaran tidak ditemukan.',
       );
     }
 
+    // Jobseeker hanya boleh melihat lamaran miliknya
     if (
-      application.userId !== userId
+      application.userId === userId
+    ) {
+      return application;
+    }
+
+    // Recruiter hanya boleh melihat lamaran
+    // pada company miliknya
+    if (
+      application.job.company.userId ===
+      userId
+    ) {
+      return application;
+    }
+
+    throw new ForbiddenException(
+      'Kamu tidak memiliki akses ke lamaran ini.',
+    );
+  }
+
+  // =====================================================
+  // GET APPLICANTS BY JOB
+  // RECRUITER
+  // =====================================================
+
+  async findByJob(
+    jobId: number,
+    userId: number,
+  ) {
+    const job =
+      await this.prisma.job.findUnique({
+        where: {
+          id: jobId,
+        },
+
+        include: {
+          company: true,
+        },
+      });
+
+    if (!job) {
+      throw new NotFoundException(
+        'Job tidak ditemukan.',
+      );
+    }
+
+    // Pastikan job milik recruiter
+    if (
+      job.company.userId !== userId
     ) {
       throw new ForbiddenException(
-        'Kamu tidak memiliki application ini.',
+        'Kamu tidak memiliki job ini.',
       );
     }
 
-    return application;
+    return this.prisma.application.findMany({
+      where: {
+        jobId,
+      },
+
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullname: true,
+            email: true,
+          },
+        },
+
+        job: {
+          select: {
+            id: true,
+            title: true,
+            location: true,
+            status: true,
+          },
+        },
+      },
+
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 }

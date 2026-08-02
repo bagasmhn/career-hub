@@ -2,7 +2,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateCompanyDto } from './dto/create.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { RejectCompanyDto } from './dto/reject-company.dto';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { CloudinaryService } from "../cloudinary/cloudinary.service";
 export declare class CompanyService {
     private readonly prisma;
     private readonly cloudinaryService;

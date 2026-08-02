@@ -1,1 +1,1 @@
-export class applicationCreateDto {}
+export class CreateApplicationDto {}
