@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `application` ADD COLUMN `status` ENUM('PENDING', 'ACCEPTED', 'REJECTED') NOT NULL DEFAULT 'PENDING';
