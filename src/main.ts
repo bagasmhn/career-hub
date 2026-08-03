@@ -27,7 +27,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Library API')
-    .setDescription('Backend API Sistem KeretaAPI')
+    .setDescription('Backend API CareerHUB')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

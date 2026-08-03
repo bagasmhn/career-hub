@@ -18,6 +18,8 @@ model User {
   fullname     String
   email        String        @unique
   password     String
+  profilePhoto String?
+  banner       String?
   skills       UserSkill[]
   role         Role
   company      Company?
@@ -104,10 +106,10 @@ model Application {
   jobId Int
   job   Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
-  cvUrl String
-status StatusApplication @default(PENDING)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  cvUrl     String
+  status    StatusApplication @default(PENDING)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 
   @@unique([userId, jobId])
   @@map("application")
@@ -130,6 +132,7 @@ enum StatusJob {
   OPEN
   CLOSED
 }
+
 enum StatusApplication {
   PENDING
   ACCEPTED
