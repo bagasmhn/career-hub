@@ -3,52 +3,52 @@ export declare class UserController {
     private readonly userService;
     constructor(userService: UserService);
     findAll(): Promise<{
-        id: number;
         email: string;
+        createdAt: Date;
+        id: number;
+        banner: string | null;
         fullname: string;
         profilePhoto: string | null;
-        banner: string | null;
         role: import(".prisma/client").$Enums.Role;
-        createdAt: Date;
         skills: ({
             skill: {
-                id: number;
                 createdAt: Date;
+                id: number;
                 name: string;
             };
         } & {
-            id: number;
             createdAt: Date;
+            id: number;
             userId: number;
             skillId: number;
         })[];
     }[]>;
     findAllAdmin(): Promise<{
-        id: number;
         email: string;
+        createdAt: Date;
+        id: number;
+        banner: string | null;
         fullname: string;
         profilePhoto: string | null;
-        banner: string | null;
         role: import(".prisma/client").$Enums.Role;
-        createdAt: Date;
     }[]>;
     findOne(id: number): Promise<{
-        id: number;
         email: string;
+        createdAt: Date;
+        id: number;
+        banner: string | null;
         fullname: string;
         profilePhoto: string | null;
-        banner: string | null;
         role: import(".prisma/client").$Enums.Role;
-        createdAt: Date;
         skills: ({
             skill: {
-                id: number;
                 createdAt: Date;
+                id: number;
                 name: string;
             };
         } & {
-            id: number;
             createdAt: Date;
+            id: number;
             userId: number;
             skillId: number;
         })[];
@@ -61,47 +61,47 @@ export declare class UserController {
     }): Promise<{
         message: string;
         data: {
-            id: number;
             email: string;
-            fullname: string;
-            profilePhoto: string | null;
-            banner: string | null;
-            role: import(".prisma/client").$Enums.Role;
             createdAt: Date;
             updatedAt: Date;
+            id: number;
+            banner: string | null;
+            fullname: string;
+            profilePhoto: string | null;
+            role: import(".prisma/client").$Enums.Role;
             skills: ({
                 skill: {
-                    id: number;
                     createdAt: Date;
+                    id: number;
                     name: string;
                 };
             } & {
-                id: number;
                 createdAt: Date;
+                id: number;
                 userId: number;
                 skillId: number;
             })[];
         };
     }>;
     update(id: number, dto: any): Promise<{
-        id: number;
         email: string;
-        fullname: string;
-        profilePhoto: string | null;
-        banner: string | null;
-        role: import(".prisma/client").$Enums.Role;
         createdAt: Date;
         updatedAt: Date;
+        id: number;
+        banner: string | null;
+        fullname: string;
+        profilePhoto: string | null;
+        role: import(".prisma/client").$Enums.Role;
     }>;
     remove(id: number): Promise<{
-        id: number;
-        email: string;
-        fullname: string;
         password: string;
-        profilePhoto: string | null;
-        banner: string | null;
-        role: import(".prisma/client").$Enums.Role;
+        email: string;
         createdAt: Date;
         updatedAt: Date;
+        id: number;
+        banner: string | null;
+        fullname: string;
+        profilePhoto: string | null;
+        role: import(".prisma/client").$Enums.Role;
     }>;
 }

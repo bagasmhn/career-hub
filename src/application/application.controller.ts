@@ -69,7 +69,9 @@ description:'Upload CV PDF/DOC/DOCX'
 
 })
 
-
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.JOBSEEKER)
 @Post(':jobId')
 @ApiConsumes('multipart/form-data')
 

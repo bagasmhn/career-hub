@@ -4,34 +4,34 @@ export declare class SkillController {
     private readonly skillService;
     constructor(skillService: SkillService);
     findAll(): Promise<{
-        id: number;
         createdAt: Date;
+        id: number;
         name: string;
     }[]>;
     addSkill(req: any, dto: CreateSkillDto): Promise<{
         message: string;
         data: {
             skill: {
-                id: number;
                 createdAt: Date;
+                id: number;
                 name: string;
             };
         } & {
-            id: number;
             createdAt: Date;
+            id: number;
             userId: number;
             skillId: number;
         };
     }>;
     getMySkills(req: any): Promise<({
         skill: {
-            id: number;
             createdAt: Date;
+            id: number;
             name: string;
         };
     } & {
-        id: number;
         createdAt: Date;
+        id: number;
         userId: number;
         skillId: number;
     })[]>;

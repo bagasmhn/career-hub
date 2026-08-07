@@ -11,155 +11,155 @@ export declare class CompanyController {
     }): Promise<{
         message: string;
         data: {
-            id: number;
+            description: string;
             email: string | null;
-            banner: string | null;
+            status: import(".prisma/client").$Enums.StatusRequest;
             createdAt: Date;
             updatedAt: Date;
+            id: number;
+            userId: number;
             name: string;
-            description: string;
+            logo: string | null;
+            banner: string | null;
             phone: string | null;
             website: string | null;
             industry: string | null;
             address: string | null;
-            userId: number;
-            logo: string | null;
-            status: import(".prisma/client").$Enums.StatusRequest;
             rejectionReason: string | null;
         };
     }>;
     findAll(): Promise<({
         user: {
-            id: number;
             email: string;
+            id: number;
             fullname: string;
         };
     } & {
-        id: number;
+        description: string;
         email: string | null;
-        banner: string | null;
+        status: import(".prisma/client").$Enums.StatusRequest;
         createdAt: Date;
         updatedAt: Date;
+        id: number;
+        userId: number;
         name: string;
-        description: string;
+        logo: string | null;
+        banner: string | null;
         phone: string | null;
         website: string | null;
         industry: string | null;
         address: string | null;
-        userId: number;
-        logo: string | null;
-        status: import(".prisma/client").$Enums.StatusRequest;
         rejectionReason: string | null;
     })[]>;
     findAllAdmin(): Promise<({
         user: {
-            id: number;
             email: string;
+            id: number;
             fullname: string;
         };
     } & {
-        id: number;
+        description: string;
         email: string | null;
-        banner: string | null;
+        status: import(".prisma/client").$Enums.StatusRequest;
         createdAt: Date;
         updatedAt: Date;
+        id: number;
+        userId: number;
         name: string;
-        description: string;
+        logo: string | null;
+        banner: string | null;
         phone: string | null;
         website: string | null;
         industry: string | null;
         address: string | null;
-        userId: number;
-        logo: string | null;
-        status: import(".prisma/client").$Enums.StatusRequest;
         rejectionReason: string | null;
     })[]>;
     myCompany(req: any): Promise<{
         user: {
-            id: number;
             email: string;
+            id: number;
             fullname: string;
         };
     } & {
-        id: number;
+        description: string;
         email: string | null;
-        banner: string | null;
+        status: import(".prisma/client").$Enums.StatusRequest;
         createdAt: Date;
         updatedAt: Date;
+        id: number;
+        userId: number;
         name: string;
-        description: string;
+        logo: string | null;
+        banner: string | null;
         phone: string | null;
         website: string | null;
         industry: string | null;
         address: string | null;
-        userId: number;
-        logo: string | null;
-        status: import(".prisma/client").$Enums.StatusRequest;
         rejectionReason: string | null;
     }>;
     findPending(): Promise<({
         user: {
-            id: number;
             email: string;
+            id: number;
             fullname: string;
         };
     } & {
-        id: number;
+        description: string;
         email: string | null;
-        banner: string | null;
+        status: import(".prisma/client").$Enums.StatusRequest;
         createdAt: Date;
         updatedAt: Date;
+        id: number;
+        userId: number;
         name: string;
-        description: string;
+        logo: string | null;
+        banner: string | null;
         phone: string | null;
         website: string | null;
         industry: string | null;
         address: string | null;
-        userId: number;
-        logo: string | null;
-        status: import(".prisma/client").$Enums.StatusRequest;
         rejectionReason: string | null;
     })[]>;
     findOne(id: number): Promise<{
         user: {
-            id: number;
             email: string;
+            id: number;
             fullname: string;
         };
     } & {
-        id: number;
+        description: string;
         email: string | null;
-        banner: string | null;
+        status: import(".prisma/client").$Enums.StatusRequest;
         createdAt: Date;
         updatedAt: Date;
+        id: number;
+        userId: number;
         name: string;
-        description: string;
+        logo: string | null;
+        banner: string | null;
         phone: string | null;
         website: string | null;
         industry: string | null;
         address: string | null;
-        userId: number;
-        logo: string | null;
-        status: import(".prisma/client").$Enums.StatusRequest;
         rejectionReason: string | null;
     }>;
     update(id: number, req: any, dto: UpdateCompanyDto): Promise<{
         message: string;
         data: {
-            id: number;
+            description: string;
             email: string | null;
-            banner: string | null;
+            status: import(".prisma/client").$Enums.StatusRequest;
             createdAt: Date;
             updatedAt: Date;
+            id: number;
+            userId: number;
             name: string;
-            description: string;
+            logo: string | null;
+            banner: string | null;
             phone: string | null;
             website: string | null;
             industry: string | null;
             address: string | null;
-            userId: number;
-            logo: string | null;
-            status: import(".prisma/client").$Enums.StatusRequest;
             rejectionReason: string | null;
         };
     }>;
@@ -169,40 +169,40 @@ export declare class CompanyController {
     approve(id: number): Promise<{
         message: string;
         data: {
-            id: number;
+            description: string;
             email: string | null;
-            banner: string | null;
+            status: import(".prisma/client").$Enums.StatusRequest;
             createdAt: Date;
             updatedAt: Date;
+            id: number;
+            userId: number;
             name: string;
-            description: string;
+            logo: string | null;
+            banner: string | null;
             phone: string | null;
             website: string | null;
             industry: string | null;
             address: string | null;
-            userId: number;
-            logo: string | null;
-            status: import(".prisma/client").$Enums.StatusRequest;
             rejectionReason: string | null;
         };
     }>;
     reject(id: number, dto: RejectCompanyDto): Promise<{
         message: string;
         data: {
-            id: number;
+            description: string;
             email: string | null;
-            banner: string | null;
+            status: import(".prisma/client").$Enums.StatusRequest;
             createdAt: Date;
             updatedAt: Date;
+            id: number;
+            userId: number;
             name: string;
-            description: string;
+            logo: string | null;
+            banner: string | null;
             phone: string | null;
             website: string | null;
             industry: string | null;
             address: string | null;
-            userId: number;
-            logo: string | null;
-            status: import(".prisma/client").$Enums.StatusRequest;
             rejectionReason: string | null;
         };
     }>;

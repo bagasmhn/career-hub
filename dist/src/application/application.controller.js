@@ -62,6 +62,9 @@ __decorate([
             }
         }
     }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorators_1.Roles)(client_1.Role.JOBSEEKER),
     (0, common_1.Post)(':jobId'),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({

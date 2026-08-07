@@ -26,7 +26,7 @@ export class ApplicationService {
 
     private readonly cloudinaryService: CloudinaryService,
 
-  ) {}
+  ) { }
 
 
 
@@ -37,16 +37,16 @@ export class ApplicationService {
 
   async applyJob(
 
-    userId:number,
+    userId: number,
 
-    jobId:number,
+    jobId: number,
 
-    file:Express.Multer.File,
+    file: Express.Multer.File,
 
-  ){
+  ) {
 
 
-    if(!file){
+    if (!file) {
 
       throw new BadRequestException(
         'CV wajib diupload.'
@@ -57,17 +57,17 @@ export class ApplicationService {
 
 
     const user =
-    await this.prisma.user.findUnique({
+      await this.prisma.user.findUnique({
 
-      where:{
-        id:userId,
-      },
+        where: {
+          id: userId,
+        },
 
-    });
+      });
 
 
 
-    if(!user){
+    if (!user) {
 
       throw new NotFoundException(
         'User tidak ditemukan.'
@@ -78,7 +78,7 @@ export class ApplicationService {
 
 
 
-    if(user.role !== Role.JOBSEEKER){
+    if (user.role !== Role.JOBSEEKER) {
 
       throw new ForbiddenException(
         'Hanya jobseeker yang dapat melamar.'
@@ -91,17 +91,17 @@ export class ApplicationService {
 
 
     const job =
-    await this.prisma.job.findUnique({
+      await this.prisma.job.findUnique({
 
-      where:{
-        id:jobId,
-      },
+        where: {
+          id: jobId,
+        },
 
-    });
+      });
 
 
 
-    if(!job){
+    if (!job) {
 
       throw new NotFoundException(
         'Job tidak ditemukan.'
@@ -113,7 +113,7 @@ export class ApplicationService {
 
 
 
-    if(job.status !== StatusJob.OPEN){
+    if (job.status !== StatusJob.OPEN) {
 
       throw new BadRequestException(
         'Lowongan sudah ditutup.'
@@ -127,27 +127,27 @@ export class ApplicationService {
 
     const existing =
 
-    await this.prisma.application.findUnique({
+      await this.prisma.application.findUnique({
 
-      where:{
+        where: {
 
-        userId_jobId:{
+          userId_jobId: {
 
-          userId,
+            userId,
 
-          jobId,
+            jobId,
+
+          },
 
         },
 
-      },
-
-    });
+      });
 
 
 
 
 
-    if(existing){
+    if (existing) {
 
       throw new BadRequestException(
         'Kamu sudah melamar pekerjaan ini.'
@@ -166,13 +166,13 @@ export class ApplicationService {
 
     const upload =
 
-    await this.cloudinaryService.uploadFile(
+      await this.cloudinaryService.uploadFile(
 
-      file,
+        file,
 
-      'careerhub/cv',
+        'careerhub/cv',
 
-    );
+      );
 
 
 
@@ -180,52 +180,55 @@ export class ApplicationService {
 
     const application =
 
-    await this.prisma.application.create({
+      await this.prisma.application.create({
 
-      data:{
-
-
-        userId,
-
-        jobId,
+        data: {
 
 
-        cvUrl:
-        upload.secure_url,
+          userId,
+
+          jobId,
 
 
-        status:
-        StatusApplication.PENDING,
+          cvUrl:
+            upload.secure_url,
 
 
-      },
+          status:
+            StatusApplication.PENDING,
 
 
-      include:{
+        },
 
 
-        job:{
+        include: {
 
 
-          select:{
+          job: {
 
 
-            id:true,
-
-            title:true,
-
-            location:true,
+            select: {
 
 
-            company:{
+              id: true,
+
+              title: true,
+
+              location: true,
 
 
-              select:{
+              company: {
 
 
-                id:true,
+                select: {
 
-                name:true,
+
+                  id: true,
+
+                  name: true,
+
+
+                },
 
 
               },
@@ -240,10 +243,7 @@ export class ApplicationService {
         },
 
 
-      },
-
-
-    });
+      });
 
 
 
@@ -253,10 +253,10 @@ export class ApplicationService {
 
 
       message:
-      'Lamaran berhasil dikirim.',
+        'Lamaran berhasil dikirim.',
 
 
-      data:application,
+      data: application,
 
 
     };
@@ -282,21 +282,21 @@ export class ApplicationService {
 
   async findRecruiterApplications(
 
-    userId:number,
+    userId: number,
 
-  ){
+  ) {
 
 
     return this.prisma.application.findMany({
 
 
-      where:{
+      where: {
 
 
-        job:{
+        job: {
 
 
-          company:{
+          company: {
 
 
             userId,
@@ -311,20 +311,20 @@ export class ApplicationService {
 
 
 
-      include:{
+      include: {
 
 
-        user:{
+        user: {
 
 
-          select:{
+          select: {
 
 
-            id:true,
+            id: true,
 
-            fullname:true,
+            fullname: true,
 
-            email:true,
+            email: true,
 
 
           },
@@ -333,34 +333,34 @@ export class ApplicationService {
         },
 
 
-        job:{
+        job: {
 
 
-          select:{
+          select: {
 
 
-            id:true,
+            id: true,
 
-            title:true,
+            title: true,
 
-            location:true,
+            location: true,
 
-            salary:true,
+            salary: true,
 
-            status:true,
-
-
-            company:{
+            status: true,
 
 
-              select:{
+            company: {
 
 
-                id:true,
+              select: {
 
-                name:true,
 
-                logo:true,
+                id: true,
+
+                name: true,
+
+                logo: true,
 
 
               },
@@ -379,10 +379,10 @@ export class ApplicationService {
 
 
 
-      orderBy:{
+      orderBy: {
 
 
-        createdAt:'desc',
+        createdAt: 'desc',
 
 
       },
@@ -408,39 +408,42 @@ export class ApplicationService {
 
   async findOneForRecruiter(
 
-    id:number,
+    id: number,
 
-    userId:number,
+    userId: number,
 
-  ){
+  ) {
 
 
     const application =
 
-    await this.prisma.application.findUnique({
+      await this.prisma.application.findUnique({
 
 
-      where:{
+        where: {
 
 
-        id,
+          id,
 
-      },
-
-
-      include:{
+        },
 
 
-        user:true,
+        include: {
 
 
-        job:{
+          user: true,
 
 
-          include:{
+          job: {
 
 
-            company:true,
+            include: {
+
+
+              company: true,
+
+
+            },
 
 
           },
@@ -449,16 +452,13 @@ export class ApplicationService {
         },
 
 
-      },
-
-
-    });
+      });
 
 
 
 
 
-    if(!application){
+    if (!application) {
 
       throw new NotFoundException(
         'Application tidak ditemukan.'
@@ -470,11 +470,11 @@ export class ApplicationService {
 
 
 
-    if(
+    if (
 
       application.job.company.userId !== userId
 
-    ){
+    ) {
 
       throw new ForbiddenException(
         'Tidak memiliki akses.'
@@ -505,33 +505,33 @@ export class ApplicationService {
 
   async accept(
 
-    id:number,
+    id: number,
 
-    userId:number,
+    userId: number,
 
-  ){
+  ) {
 
 
     const application =
 
-    await this.findOneForRecruiter(
+      await this.findOneForRecruiter(
 
-      id,
+        id,
 
-      userId
+        userId
 
-    );
-
-
+      );
 
 
-    if(
+
+
+    if (
 
       application.status !==
 
       StatusApplication.PENDING
 
-    ){
+    ) {
 
       throw new BadRequestException(
         'Application sudah diproses.'
@@ -545,7 +545,7 @@ export class ApplicationService {
     return this.prisma.application.update({
 
 
-      where:{
+      where: {
 
 
         id,
@@ -553,12 +553,12 @@ export class ApplicationService {
       },
 
 
-      data:{
+      data: {
 
 
         status:
 
-        StatusApplication.ACCEPTED,
+          StatusApplication.ACCEPTED,
 
 
       },
@@ -584,33 +584,33 @@ export class ApplicationService {
 
   async reject(
 
-    id:number,
+    id: number,
 
-    userId:number,
+    userId: number,
 
-  ){
+  ) {
 
 
     const application =
 
-    await this.findOneForRecruiter(
+      await this.findOneForRecruiter(
 
-      id,
+        id,
 
-      userId
+        userId
 
-    );
-
-
+      );
 
 
-    if(
+
+
+    if (
 
       application.status !==
 
       StatusApplication.PENDING
 
-    ){
+    ) {
 
       throw new BadRequestException(
         'Application sudah diproses.'
@@ -624,7 +624,7 @@ export class ApplicationService {
     return this.prisma.application.update({
 
 
-      where:{
+      where: {
 
 
         id,
@@ -632,12 +632,12 @@ export class ApplicationService {
       },
 
 
-      data:{
+      data: {
 
 
         status:
 
-        StatusApplication.REJECTED,
+          StatusApplication.REJECTED,
 
 
       },
@@ -663,15 +663,15 @@ export class ApplicationService {
 
   async findMyApplications(
 
-    userId:number,
+    userId: number,
 
-  ){
+  ) {
 
 
     return this.prisma.application.findMany({
 
 
-      where:{
+      where: {
 
 
         userId,
@@ -680,16 +680,16 @@ export class ApplicationService {
       },
 
 
-      include:{
+      include: {
 
 
-        job:{
+        job: {
 
 
-          include:{
+          include: {
 
 
-            company:true,
+            company: true,
 
 
           },
@@ -701,10 +701,10 @@ export class ApplicationService {
       },
 
 
-      orderBy:{
+      orderBy: {
 
 
-        createdAt:'desc',
+        createdAt: 'desc',
 
 
       },
@@ -730,37 +730,40 @@ export class ApplicationService {
 
   async findMyApplication(
 
-    id:number,
+    id: number,
 
-    userId:number,
+    userId: number,
 
-  ){
+  ) {
 
 
     const application =
 
-    await this.prisma.application.findUnique({
+      await this.prisma.application.findUnique({
 
 
-      where:{
+        where: {
 
 
-        id,
+          id,
 
 
-      },
+        },
 
 
-      include:{
+        include: {
 
 
-        job:{
+          job: {
 
 
-          include:{
+            include: {
 
 
-            company:true,
+              company: true,
+
+
+            },
 
 
           },
@@ -769,16 +772,13 @@ export class ApplicationService {
         },
 
 
-      },
-
-
-    });
+      });
 
 
 
 
 
-    if(!application){
+    if (!application) {
 
       throw new NotFoundException(
         'Application tidak ditemukan.'
@@ -790,7 +790,7 @@ export class ApplicationService {
 
 
 
-    if(application.userId !== userId){
+    if (application.userId !== userId) {
 
 
       throw new ForbiddenException(
